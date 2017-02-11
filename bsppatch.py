@@ -8,6 +8,9 @@ INT_MAX = 0xffffffff
 FP_UNLOCKED = 0
 FP_LOCKED = 1
 
+def null(*args): return
+debug = print
+
 class BSPPatch:
     def __init__(self, patch_name, file_name):
         self.patch_name = patch_name
@@ -143,14 +146,14 @@ class BSPPatch:
             opcode = opcode & 0xfc
 
         # debug
-        print("executed " + self.op_table[opcode].__name__ + ", variant", self.variant)
+        debug("executed " + self.op_table[opcode].__name__ + ", variant", self.variant)
 
         self.registers['ip'] += 1
         self.op_table[opcode]()
         
         # debug
-        print(self.stack, self.vl[:5], self.registers)
-        print(self.fbuf, '\n')
+        debug(self.stack, self.vl[:5], self.registers)
+        debug(self.fbuf, '\n')
 
     ### utility functions ###
 
@@ -345,7 +348,7 @@ class BSPPatch:
             self.error("can't divide by 0")
 
         if op in op_compare:
-            print(str(var) + op + str(first))
+            debug(str(var) + op + str(first))
 
             if eval(str(var) + op + str(first)):
                 self.registers['ip'] = second
@@ -750,7 +753,7 @@ class BSPPatch:
         addr = self.read_pbuf_var_word(2)
         result = 0
 
-        print(var, addr)
+        debug(var, addr)
 
         stored_hash = self.read_buffer(self.pbuf, 20, addr)
         fbuf_hash = hashlib.sha1(self.fbuf).digest()
@@ -760,7 +763,7 @@ class BSPPatch:
                 result |= 1 << i            
         
         self.vl[var] = result
-        print("result:", result)
+        debug("result:", result)
 
     def writedata(self):
         if self.variant in (0, 1):
@@ -831,7 +834,7 @@ class BSPPatch:
 
             offset = self.registers['fp'] + ips_offset
             self.write_fbuf(ips_data, len(ips_data), offset, False)
-            print(self.fbuf, ips_data, len(ips_data), offset)
+            debug(self.fbuf, ips_data, len(ips_data), offset)
 
         self.set_var(var, ips_pointer)
 
